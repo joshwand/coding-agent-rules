@@ -14,8 +14,15 @@ fi
 
 # create the target directory if it doesn't exist
 mkdir -p "$TARGET_DIR"
+mkdir -p "$TARGET_DIR/_templates"
 
 # create symlinks to all the rules
 for rule in "$SOURCE_DIR"/*.md; do
-    ln -s "$rule" "$TARGET_DIR/$(basename "$rule").mdc"
+    if [[ "$(basename "$rule")" != "README.md" ]]; then
+        ln -s "$rule" "$TARGET_DIR/very-important-$(basename "$rule" .md).mdc"
+    fi
+done
+
+for template in "$SOURCE_DIR/_templates"/*.md; do
+    ln -s "$template" "$TARGET_DIR/_templates/$(basename "$template")"
 done

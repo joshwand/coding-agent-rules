@@ -38,7 +38,6 @@ Before running any command, cd into the *absolute path* to the required working 
 - Inheritance patterns
 - Configuration centralization
 
-
 ## SingleResponsibility
 
 **Definition**: Each code entity should have single responsibility and consistent meaning
@@ -51,7 +50,6 @@ Before running any command, cd into the *absolute path* to the required working 
 ## KISS
 
 **Definition**: Prioritize simplicity in design and implementation
-
 ### Benefits
 - Reduced implementation time
 - Lower defect probability
@@ -82,7 +80,6 @@ Before running any command, cd into the *absolute path* to the required working 
 ## YAGNI
 
 **Definition**: Implement features only when actually needed
-
 ### Original Justification
 - Save time by avoiding unneeded code
 - Prevent guesswork pollution
@@ -142,7 +139,6 @@ Before running any command, cd into the *absolute path* to the required working 
 ## LeastAstonishment
 
 **Definition**: Meet user expectations through predictable behavior
-
 ### Implementation
 - Consistent naming
 - Standard patterns
@@ -151,7 +147,6 @@ Before running any command, cd into the *absolute path* to the required working 
 ### Violation Examples
 - Unexpected side effects in getter methods
 - Non-standard exception throwing patterns
-- 
 ### Convention Rules
 - Follow language idioms
 - Maintain consistent error handling
@@ -159,55 +154,59 @@ Before running any command, cd into the *absolute path* to the required working 
 ## VerifyEarlyAndOften
 
 **Definition**: Verify code correctness early and often
-
 ### Key Points
 - Test early and often
-- Implement incrementally
+- Code and verify incrementally
 - Use unit tests
 - Use integration tests
-
+- Run the tests often
+- You are not done until all the tests pass.
 ### Implementation
 - Limit the scope of changes at one time
 - Strive to avoid large leaps in complexity at any step
 - Write unit tests for all functions
 - Use integration tests for system-level validation
-
+- Use separate AI integration tests to verify prompts/responses, using the real model.
 ### Violation Examples
 - No unit tests for critical functions
 - Lack of integration tests
-
+- Failure to run tests after making changes to source or test code
+- Failure to ensure passing tests
+- AI integration tests that only use mock responses
 ### Convention Rules
 - Use test-driven development
 - Implement automated testing
-
 ## NoGiantLeaps
 
 **Definition**: Don't try to make big changes all at once; take incremental steps that can be tested along the way.
-
 ### Key Points
 - Break down large tasks into smaller, manageable steps
 - Test each step before proceeding
 - Ensure each step adds value and is reversible
 - Avoid introducing unnecessary complexity
-
 ### Violation Examples
 - Attempting a large refactor without incremental testing
-
 ## NoSyntheticData
 
 **Definition**: If you encounter a problem when working with data, NEVER fall back to some fake or simplified data. You can do this in a test in order to debug the issue, but NEVER use fake data in non-test code.
-
 ### Violation Examples
 - Using fake data in non-test code
 - Using simplified data in non-test code
+
+## AskUserForStrategyChoices
+
+**Definition**: If you have a choice of strategies, ask the user for their preference; don't make assumptions about the best strategy.
+### Violation Examples
+- "Here a number of approaches [...] Let's do option 3 because it's the best one"
+- "We could either: a) b) or c) [...] Let's implement b) as it seems more practical
 
 ## AskUserBeforeChangingRequirements
 
 **Definition**: If you encounter a problem, ask the user for help before giving up on the given task and doing something simpler or easier.
 
 ### Violation Examples
-- I couldn't get this to work, so let's just do something simpler or easier 
-- I couldn't get this to work, so let's just do the thing the user already told us not to do, since it's easier and more straightforward
+- "I couldn't get this to work, so let's just [do something simpler or easier]"
+- "I couldn't get this to work, so let's just [do the thing the user already told us not to do], since it's easier and more straightforward"
 
 ## NoPlaceholdersWithoutApproval
 
