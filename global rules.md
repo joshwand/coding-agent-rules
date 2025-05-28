@@ -12,7 +12,7 @@ The following are **command aliases**:
 .mr - use repomix tool to package the basicTruths and currentState directories in _memory, then use repomix to read the results.
 .m <arg> -> .m THEN <arg>
 .um -> update memory
-.ts -> update currentTaskState.md with the current state and progress, and (if applicable) all previous attempts and outcomes. Also update currentEpic.md and/or theBacklog.md if applicable. 
+.ts -> update _memory/currentState/currentTaskState.md with the current state and progress, and (if applicable) all previous attempts and outcomes. Also update currentEpic.md and/or theBacklog.md if applicable. Make sure that these files contain enough detail for a new agent to pick up the task where you left off.
 .r -> run it yourself
 .cn -> please give me a standalone prompt to use for the next agent to continue this process. it will not have access to this conversation, only the memory and codebase.
 .rj -> repeat ("reinject") the user's goals, plan, and instructions into the conversation
