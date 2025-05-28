@@ -1,50 +1,19 @@
 #! /bin/bash
 
-## creates symlinks to all the rules into a project directory
-## to be run from the root of the project
+## Wrapper script to call the Python-based rules manager.
 
-SOURCE_DIR=~/code/coding-agent-rules
-TARGET_DIR=`pwd`/.cursor/rules
-COPY_MODE=false
+# Determine the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
-# Parse arguments
-TEMP_ARGS=()
-for arg in "$@"; do
-    if [[ "$arg" == "--copy" ]]; then
-        COPY_MODE=true
-    else
-        TEMP_ARGS+=("$arg")
-    fi
-done
-set -- "${TEMP_ARGS[@]}" # Reset positional parameters
+PYTHON_SCRIPT_PATH="$SCRIPT_DIR/rules_manager.py"
 
-# if the user has provided a path argument, use it as the target directory
-if [ -n "$1" ]; then
-    TARGET_DIR="$1"
+if [ ! -f "$PYTHON_SCRIPT_PATH" ]; then
+    echo "Error: Python script not found at $PYTHON_SCRIPT_PATH" >&2
+    exit 1
 fi
 
-# create the target directory if it doesn't exist
-mkdir -p "$TARGET_DIR"
-mkdir -p "$TARGET_DIR/_templates"
+# Execute the Python script, passing all arguments through
+# Use python3, assuming it's available in the PATH
+python3 "$PYTHON_SCRIPT_PATH" "$@"
 
-# create symlinks or copy files for rules
-for rule in "$SOURCE_DIR"/*.md; do
-    if [[ "$(basename "$rule")" != "README.md" ]]; then
-        DEST_FILE="$TARGET_DIR/very-important-$(basename "$rule" .md).mdc"
-        if [ "$COPY_MODE" = true ]; then
-            cp -f "$rule" "$DEST_FILE"
-        else
-            ln -s "$rule" "$DEST_FILE"
-        fi
-    fi
-done
-
-# create symlinks or copy files for templates
-for template in "$SOURCE_DIR/_templates"/*.md; do
-    DEST_FILE_TEMPLATE="$TARGET_DIR/_templates/$(basename "$template")"
-    if [ "$COPY_MODE" = true ]; then
-        cp -f "$template" "$DEST_FILE_TEMPLATE"
-    else
-        ln -s "$template" "$DEST_FILE_TEMPLATE"
-    fi
-done
+exit $?
