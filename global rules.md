@@ -16,6 +16,7 @@ The following are **command aliases**:
 .r -> run it yourself
 .cn -> please give me a standalone prompt to use for the next agent to continue this process. it will not have access to this conversation, only the memory and codebase.
 .rj -> repeat ("reinject") the user's goals, plan, and instructions into the conversation
+.rrr <optional-arg> -> re-read the rules files (or <arg> if specified)
 .? -> list commands and prompt aliases
 
 The following are **prompt aliases**. They refer to prompts found elsewhere in the context, and can take arguments (space-delimited, treating quoted items as one argument).
@@ -23,7 +24,6 @@ The following are **prompt aliases**. They refer to prompts found elsewhere in t
 .ip -> Interactive Planning
 .bp -> Blueprint
 .bpp -> Blueprint w Prompts
-
 
 ## Interactive Planning 
 

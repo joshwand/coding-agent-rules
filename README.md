@@ -6,7 +6,7 @@ For now these are oriented towards Cursor, but they can easily be adapted to oth
 
 ## Components
 
-### Memory Bank
+### Structured Memory
 Credit where credit is due: this memory bank prompt is an adaptation of the [Cline Memory Bank](https://docs.cline.bot/improving-your-prompting-skills/cline-memory-bank). 
 
 Its purpose is to provide ongoing documentation of the project's purpose, scope, architecture, roadmap, and status, all of which is critical context for the coding agent to inform all its responses. 
@@ -16,6 +16,8 @@ If you're an engineer, think of this as:
 2. The project backlog and roadmap maintained by the product manager.
 3. The status updates you'd give your PM and stakeholders.
 4. Your working notes as you [yak](https://projects.csail.mit.edu/gsb/old-archive/gsb-archive/gsb2000-02-11.html)-[shave](https://youtu.be/AbSehcT19u0) your way through a new feature or bug.
+
+The memory bank is stored in the `_memory` directory, in a structure that I've found useful. I believe that having a structured memory makes the the agent more reliably understand the project and its context, track its internal state, and make better decisions, in comparison to techniques used by other coding agents, such as an unstructured set of atomic memories as used by Windsurf, or a single freetext file such as the one used by Claude.
 
 ### Principles
 
@@ -30,15 +32,49 @@ NB I prefer to have tests written for all new features, so that the agent can te
 A set of common commands and aliases for the most important prompts.
 
 ### Workflow
-## Installation 
+## Installation
 
-### Cursor
+The `symlink-rules.sh` script is the primary method for installing and managing the agent rules. It is a wrapper for the `rules_manager.py` Python script, which contains the core logic for handling the rules.
 
-1. clone this repo
-2. run the symlink script from the root of your project
+### Basic Usage
+
+To set up the rules for your project, run the `symlink-rules.sh` script from your project's root directory. You will need to provide the path to your clone of the `coding-agent-rules` repository.
 
 ```bash
-bash ~/code/coding-agent-rules/symlink-rules.sh
+bash /path/to/your/coding-agent-rules/symlink-rules.sh
+```
+
+By default, this command symlinks the rules for the `cursor` agent into the current directory.
+
+### Target Directory
+
+You can also specify a different target directory for the rules:
+
+```bash
+bash /path/to/your/coding-agent-rules/symlink-rules.sh /path/to/your/project
+```
+
+### Options
+
+The script accepts several command-line options to customize its behavior:
+
+-   `--agent <agent_name>`: Specifies the agent you are using.
+    -   **Choices**: `cursor` (default), `windsurf`, `claude`
+    -   **Example**: `bash symlink-rules.sh --agent claude`
+
+-   `--copy`: Copies the rule files to the target directory instead of creating symbolic links.
+    -   **Example**: `bash symlink-rules.sh --copy`
+
+-   `--init-memory`: Initializes an empty `_memory` directory structure in the target directory, which is essential for agents that rely on structured memory.
+    -   **Example**: `bash symlink-rules.sh --init-memory`
+
+-   `--output <filename>`: For agents that use a single concatenated rule file (like `claude` or `windsurf`), this option allows you to specify a custom name for the output file. Note that this cannot be used in conjunction with the `--agent` option.
+    -   **Example**: `bash symlink-rules.sh --output CUSTOM_AGENT_RULES.md`
+
+These options can be combined. For instance, to initialize the memory structure and copy the rules for the `claude` agent into a specific project directory, you would run:
+
+```bash
+bash /path/to/your/coding-agent-rules/symlink-rules.sh --agent claude --init-memory --copy /path/to/your/project
 ```
 
 I also highly recommend using the specstory extension for Cursor, which will save your interaction history and allow you to reference it later.
@@ -53,7 +89,7 @@ The Global Rules file defines common commands and aliases for the most important
 
 If your agent doesn't do it automatically, include all the rules in the context at the beginning of every chat with the coding agent.
 
-
+The memory rules *should* make the agent read the memory automatically, but if not, you can use the `.m` command to ask it explicitly, or use Repomix (see below) to turn your memory into a single file that you can include in your context.
 
 
 ### Workflow
@@ -95,6 +131,17 @@ If you have a lot of ideas on what you plan to build, put it `backlog.md`.
 4. 
 
 
+## Related tools
+
+### Repomix
+
+[Repomix](https://repomix.com/) is a tool that bundles your codebase (or some subset of it) into a single file that you can include in your coding agent's context. If getting the agent to read your memory bank is unreliable, you can repomix to turn it into a single file that you can explicitly include in your context.
+
+```
+npx repomix --include _memory/ --ignore _memory/knowledgeBase/ --style markdown
+```
+
+This produces a file called repomix-output.md that you can @ in your context. (Be sure to include it in your gitignore.)
 
 
 

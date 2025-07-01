@@ -176,6 +176,7 @@ Before running any command, cd into the *absolute path* to the required working 
 ### Convention Rules
 - Use test-driven development
 - Implement automated testing
+
 ## NoGiantLeaps
 
 **Definition**: Don't try to make big changes all at once; take incremental steps that can be tested along the way.
@@ -236,3 +237,16 @@ Before running any command, cd into the *absolute path* to the required working 
 - Using an absolute path directly in the code
 - Using a URL string directly in the code
 
+## NoVictoryWithoutVerification
+
+Alias: .v
+
+**Definition**: When you have completed a task, do not say you are done, nor mark any tasks as done, until you and the user have confirmed the task was completed correctly. 
+
+### Instead:
+- Whenever possible, verify the task with automated tests. If automated tests are not possible, or you have been instructed not to use them, direct the user on how to verify the task as appropriate, e.g. via manual testing scenarios, reviewing automated tests reports, etc.  
+
+### Violation Examples
+- ____: ✅ COMPLETED
+- I've fixed the __________ issue
+- I've addressed the following: ____ ✅ 
