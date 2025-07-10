@@ -1,6 +1,9 @@
 .DS_Store
 # SpecStory explanation file
 .specstory/.what-is-this.md
+.specstory/
 .aider*
 repomix-output.md
 repomix-output.xml
+.cursorindexingignore
+.venv
