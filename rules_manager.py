@@ -5,7 +5,7 @@ import os
 import shutil
 import sys
 
-SOURCE_DIR_NAME = "code/coding-agent-rules" # Relative to user's home directory
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 AGENT_CONFIGS = {
     "cursor": {
@@ -31,54 +31,15 @@ AGENT_CONFIGS = {
     }
 }
 
-# The content for currentTaskState.md, read from the template
-CURRENT_TASK_STATE_CONTENT = """### currentTaskState.md
-# Task State
-  
-**INSTRUCTIONS:** This is the working document for the current task. Update it after EVERY turn with the user, with enough information for another agent to take over. Do not remove the instructions from each section.
-  
-## Current goal
-[insert current goal here]
-  
-## Current mode:
-INSTRUCTIONS: *(choose from: ANALYZE, PLAN, ACT, VERIFY, REFLECT, DOCUMENT)*
-  
-**ANALYZE**
-  
-## Current Status
-INSTRUCTIONS: *(describe the current state of the task, including any recent changes or progress)
-  
-[insert current status here]
-  
-### Yak-Shaving Stack:
-INSTRUCTIONS: *(from high-level to low-level; treat as an inverted stack. the bottom-most level is the current working level, and you can only add or remove the bottom-most level)*
-  
-[example content]
-- Level 1: The main goal
-- Level 2: The task we currently need to do to accomplish the main goal
-- Level 3: Solve the issue we encountered while trying to do the task in level 2
-- Level 4: Try one specific approach to solving the problem in level 3
-- Level 5: resolve any issues that came up while trying to take the approach in level 4
-[end example content]
-  
-## Scratchpad
-INSTRUCTIONS: *(add notes here to record progress and reflections)*
-  
-[insert scratchpad here]
-  
-**Next Steps:**
-1. [insert next step here]
-2. [insert next step here]
-  
-## Action Log
-INSTRUCTIONS: *(add notes here to record major actions taken while working on the task and their results, newest actions at the top)*
+BLACKLISTED_MD_FILES = [
+    "repomix-output.md",
+]
 
-[example content]
-turn 3: did a third thing
-turn 2: did a second thing
-turn 1: did the first thing
-[end example content]
-"""
+# The content for currentTaskState.md, read from the template
+CURRENT_TASK_STATE_CONTENT = ""
+
+with open(os.path.join(SCRIPT_DIR, "_templates/currentTaskState.md"), "r", encoding="utf-8") as f:
+    CURRENT_TASK_STATE_CONTENT = f.read()
 
 # Placeholder content for other files
 PLACEHOLDER_CONTENT = {
@@ -177,7 +138,7 @@ def main():
         create_memory_structure(target_dir)
         
 
-    source_dir_abs = os.path.expanduser(f"~/{SOURCE_DIR_NAME}")
+    source_dir_abs = SCRIPT_DIR
     if not os.path.isdir(source_dir_abs):
         print(f"Error: Source directory not found: {source_dir_abs}", file=sys.stderr)
         sys.exit(1)
@@ -230,7 +191,7 @@ def main():
             for item in sorted(os.listdir(source_dir_abs)): # Sort for consistent order
                 if item.startswith((".", "@")): # Skip dotfiles and @-files
                     continue
-                if item.endswith(".md") and item.lower() != "readme.md":
+                if item.endswith(".md") and item.lower() != "readme.md" and item not in BLACKLISTED_MD_FILES:
                     rules_processed_count += 1
                     rule_file_path = os.path.join(source_dir_abs, item)
                     if not first_rule_file:
@@ -285,7 +246,7 @@ def main():
         for item in sorted(os.listdir(source_templates_dir)):
             if item.startswith((".", "@")): # Skip dotfiles and @-files
                 continue
-            if item.endswith(".md"):
+            if item.endswith(".md") and item not in BLACKLISTED_MD_FILES:
                 templates_processed_count +=1
                 source_template_path = os.path.join(source_templates_dir, item)
                 dest_template_path = os.path.join(effective_templates_dir, item)
