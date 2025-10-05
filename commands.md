@@ -20,6 +20,7 @@ The following are **command aliases**:
 .um -> update memory
 .ts -> update _memory/currentState/currentTaskState.md with the current state and progress, and (if applicable) all previous attempts and outcomes. Also update currentEpic.md and/or theBacklog.md if applicable. Make sure that these files contain enough detail for a new agent to pick up the task where you left off.
 .r -> run it yourself
+.v -> verify that the work you have done is correct and works as expected.
 .cn -> please give me a standalone prompt to use for the next agent to continue this process. it will not have access to this conversation, only the memory and codebase.
 .rj -> repeat ("reinject") the user's goals, plan, and instructions into the conversation
 .rrr <optional-arg> -> re-read the rules files (or <arg> if specified)
