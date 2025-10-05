@@ -3,13 +3,7 @@ description: this is a list of commands and prompt aliases that can be used to i
 globs: 
 alwaysApply: true
 ---
---------------------------------
-# VERY IMPORTANT: 
---------------------------------
-Your first response must include:
-1: a list of all the rules files you have read
-2. a tool call to the repomix tool (npx repomix --quiet --include _memory/ --ignore _memory/knowledgeBase --style markdown)
-3. a tool call to read the repomix-output.md file.
+
 
 
 # Command Aliases
@@ -21,7 +15,7 @@ The following are **command aliases**:
 . -> see attached logs/content
 .m -> read ALL the core memory files; my question will come on the next turn. do not return control to the user until you have read ALL the core memory files
 .mc -> .m, then .c (this is for transitioning from a too-long chat to a fresh one)
-.mr <arg> -> use `npx repomix --quiet --include _memory/ --ignore _memory/knowledgeBase --style markdown` to compile the memory into a single file, then read the entirety of repomix-output.md, then ARG. Your first response MUST be a tool call to the repomix tool, and your second response MUST be a tool call to read the repomix-output.md file.
+.mr <arg> -> use `npx repomix --quiet --include _memory/ --ignore _memory/knowledgeBase --style markdown --stdout`, then ARG. Your first response MUST be a tool call to the repomix tool.
 .m <arg> -> .m THEN <arg>
 .um -> update memory
 .ts -> update _memory/currentState/currentTaskState.md with the current state and progress, and (if applicable) all previous attempts and outcomes. Also update currentEpic.md and/or theBacklog.md if applicable. Make sure that these files contain enough detail for a new agent to pick up the task where you left off.
