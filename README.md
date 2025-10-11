@@ -153,12 +153,14 @@ If you have a lot of ideas on what you plan to build, put it `backlog.md`.
 [Repomix](https://repomix.com/) is a tool that bundles your codebase (or some subset of it) into a single file that you can include in your coding agent's context. If getting the agent to read your memory bank is unreliable, you can repomix to turn it into a single file that you can explicitly include in your context.
 
 ```
-npx repomix --include _memory/ --ignore _memory/knowledgeBase/ --style markdown
+npx repomix --include _memory/ --ignore _memory/knowledgeBase/ --style markdown --stdout
 ```
 
-This produces a file called repomix-output.md that you can @ in your context. (Be sure to include it in your gitignore.)
 
+# References/Inspiration    
 
+- [Cline Memory Bank](https://docs.cline.bot/improving-your-prompting-skills/cline-memory-bank)
+- [Harper Reed: My LLM Codegen Workflow at ATM](https://harper.blog/2025/02/16/my-llm-codegen-workflow-atm/)
 
 
 
