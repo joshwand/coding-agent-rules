@@ -319,3 +319,26 @@ aliases: .nyr, .inar, .ynar
 ### Violation Examples
 - "We'll do ____ for now"
 - "The tests didn't work, let me create a standalone test"
+
+## NoLazyPatternMatching
+
+**Definition**: You must not fall back to pattern matching or heuristics. Always try to do the real version of the thing you are trying to do. If there's no other option, you must ask the user for help, do not proceed without their explicit approval.
+
+### Violation Examples
+
+```
+def _fallback_button_detection(page):
+
+  # Look for common button patterns
+  common_patterns = [
+      ('submit_button', ['button[type="submit"]', 'button:has-text("Submit")', '.submit-button']),
+      ('next_button', ['button:has-text("Next")', 'button:has-text("Continue")', '.next-button']),
+      ('login_button', ['button:has-text("Login")', 'button:has-text("Sign in")', '.login-button']),
+  ]
+  for action_name, selectors in common_patterns:
+      for selector in selectors:
+          button = page.locator(selector)
+          if button.is_visible():
+              return action_name
+    return None
+```

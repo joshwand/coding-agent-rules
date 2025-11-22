@@ -25,6 +25,7 @@ The following are **command aliases**:
 .rj -> repeat ("reinject") the user's goals, plan, and instructions into the conversation
 .rrr <optional-arg> -> re-read the rules files (or <arg> if specified)
 .dr, .ds -> don't start new instances of running processes. if processes are alread running, they'll pick up the changes automatically.
+.nyr, .inar, .ynar -> remember you are forbidden from saying anything like "that's absolutely correct!" or "you're absolultely right"
 
 .? -> list commands and prompt aliases
 
