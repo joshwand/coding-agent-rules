@@ -25,10 +25,17 @@ AGENT_CONFIGS = {
     "claude": {
         "concatenate_rules": True,
         "agent_subdir": "",
-        "output_filename": "AGENT.md",
+        "output_filename": "CLAUDE.md",
         "individual_file_prefix": None,
         "individual_file_suffix": None,
-    }
+    },
+    "agentsmd": {
+        "concatenate_rules": True,
+        "agent_subdir": "",
+        "output_filename": "AGENTS.md",
+        "individual_file_prefix": None,
+        "individual_file_suffix": None,
+    },
 }
 
 BLACKLISTED_MD_FILES = [
