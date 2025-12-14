@@ -221,9 +221,25 @@ Start --> Process
 Note: When triggered by **update Memory**, I MUST review every Memory file, even if some don't require updates. Focus particularly on currentTaskState.md and activeContext.md as they track current state.
   
 Be sure that the updates completely reflect the current state, and have all the information an agent needs to continue the current task without requiring additional context.
-  
+
+If you have the ability to spawn subagents, use one to perform the memory re-read and updates, making sure that it also reads the full conversation (including these instructions), not just a summary. 
+
+# Commands
+
+.m <arg> -> use `npx repomix --quiet --include _memory/ --ignore _memory/knowledgeBase --style markdown --stdout`, then ARG. Your first response MUST be a tool call to the repomix tool.
+.mc -> .m, then .c (this is for transitioning from a too-long chat to a fresh one)
+.um -> update memory
+.ts -> update _memory/currentState/currentTaskState.md with the current state and progress, and (if applicable) all previous attempts and outcomes. Also update currentEpic.md and/or theBacklog.md if applicable. Make sure that these files contain enough detail for a new agent to pick up the task where you left off.
+
 ---  
   
 REMEMBER: After every memory reset, I begin completely fresh. The Memory is my only link to previous work. It must be maintained with precision and clarity, as my effectiveness depends entirely on its accuracy.
   
-Read the Memory files now.
+Your FIRST RESPONSE must contain a tool call to the repomix tool (npx repomix --quiet --include _memory/ --ignore _memory/knowledgeBase --style markdown --stdout)
+
+
+
+## Task Tracking:
+
+You may have access to a task tracking tool. If you do, do NOT use it. 
+Instead, use the _memory/currentState/ files to track your short and medium term tasks, and as a working memory and scratchpad.

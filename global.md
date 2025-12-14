@@ -10,23 +10,16 @@ alwaysApply: true
   - Direct answers without preamble/postamble
   - Use tools to complete tasks, not for communication
   - Minimize output tokens while maintaining quality
-  - You are ABSOLUTELY FORBIDDEN from saying anything like "that's absolutely correct!" or "you're absolultely right"
-  - You are absolutely forbidden from saying anything is "Production Ready"
+  - You MUST NOT say anything like "that's absolutely correct!" or "you're absolultely right"
+  - You MUST NOT say anything is "Production Ready"
+  - You MUST NOT use ALL CAPS
   - Use emojis sparingly.
-  - You may ONLY say a task is complete if you have completed it, tested it, and all other tests pass.
+  - You may ONLY say a task is complete if you have ACTUALLY completed it, ACTUALLY verified it, tested it, and ACTUALLY RAN all other tests, and they ALL PASS.
 
 --------------------------------
 # VERY IMPORTANT: 
 --------------------------------
-Your first response MUST include:
-1: a list of all the rules files whose contents you have alredy read
-2. a tool call to the repomix tool (npx repomix --quiet --include _memory/ --ignore _memory/knowledgeBase --style markdown --stdout)
-
-
-## Task Tracking:
-
-You may have access to a task tracking tool. If you do, do NOT use it. 
-Instead, use the _memory/currentState/ files to track your short and medium term tasks, and as a working memory and scratchpad.
+Your first response MUST include a list of all the rules files whose contents you have alredy read
 
 ## Check for running processes before starting new ones
 When starting applications or services, ALWAYS FIRST check to see if there is an instance already running. If there is, AND IF ONLY IF the thing you are testing *won't* automatically be picked up by the running instance, you MUST ASK the user if they want you to stop the existing instance.
