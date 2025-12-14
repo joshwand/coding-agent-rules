@@ -91,6 +91,32 @@ def create_memory_structure(target_dir):
         with open(os.path.join(subdir_path, ".gitkeep"), "w") as f:
             pass
 
+    # Process templates - copy them into _memory/_templates
+    print("\nProcessing templates...")
+    source_templates_dir = os.path.join(SCRIPT_DIR, "_templates")
+    memory_templates_dir = os.path.join(base_dir, "_templates")
+    templates_processed_count = 0
+
+    if os.path.isdir(source_templates_dir):
+        os.makedirs(memory_templates_dir, exist_ok=True)
+        for item in sorted(os.listdir(source_templates_dir)):
+            if item.startswith((".", "@")):  # Skip dotfiles and @-files
+                continue
+            if item.endswith(".md") and item not in BLACKLISTED_MD_FILES:
+                templates_processed_count += 1
+                source_template_path = os.path.join(source_templates_dir, item)
+                dest_template_path = os.path.join(memory_templates_dir, item)
+
+                print(f"Copying template {source_template_path} to {dest_template_path}")
+                shutil.copy2(source_template_path, dest_template_path)
+
+        if templates_processed_count == 0:
+            print("No template files found in _templates directory (excluding dotfiles, @-files).")
+        else:
+            print(f"Processed {templates_processed_count} template file(s).")
+    else:
+        print(f"Templates source directory not found: {source_templates_dir}")
+
     print("\nMemory structure created successfully.")
 
 def main():
