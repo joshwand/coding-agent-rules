@@ -1,40 +1,64 @@
 # Coding Agent Rules
 
-A small set of rules for use with a coding agent, installed into a project as `CLAUDE.md` or `AGENTS.md`. An evolving work in progress, as coding agents themselves evolve.
+A small set of rules for use with a coding agent. Copy `AGENTS.md` (or `CLAUDE.md`, which is a symlink to it) into your project and you're done.
 
 ## What changed, and why
 
-This repo used to carry about 720 lines of rules: software engineering principles, guardrails against bad agent behavior, a mode machine, and a step-by-step interaction loop. Most of that was written to patch behaviors that models of the time actually had. They overclaimed completion, left placeholders behind, picked a strategy without asking, wandered off scope, and forgot to run the tests.
+This repo used to carry about 720 lines of rules plus a Python installer that generated per-agent output: Cursor `.mdc` files, `.windsurfrules`, `CLAUDE.md`, `AGENTS.md`. Both the rules and the installer have been cut.
 
-In July 2026 Anthropic published two pieces arguing that corpus has become a liability on frontier models:
+**The rules shrank from ~720 lines to 89.** Most of that corpus was written to patch behaviors that models of the time actually had. They overclaimed completion, left placeholders behind, picked a strategy without asking, wandered off scope, and forgot to run the tests. In July 2026 Anthropic published two pieces arguing that corpus has become a liability on frontier models:
 
 - [The new rules of context engineering for Claude 5 generation models](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models) — the Claude Code team cut over 80% of their system prompt with no measurable loss on coding evaluations. The reversals: give judgment rather than rules, design better tool interfaces rather than supplying examples, disclose progressively rather than front-loading, and point at rich references (code, test suites) rather than verbose markdown.
 - [Prompting Claude Opus 5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5) — in particular: explicit verification instructions now cause *over*-verification and cost tokens without improving results, and positive examples of the style you want beat lists of things not to do.
 
-So the ruleset was cut to roughly 110 always-on lines. What survives is the part a model cannot infer from the codebase: personal command shorthand, tone preferences, and the agreements about when to ask rather than decide. What went is everything that was compensating for a weaker model.
+What survives is the part a model cannot infer from the codebase: personal command shorthand, tone preferences, and the agreements about when to ask rather than decide. What went is everything that was compensating for a weaker model.
 
 Specifically removed: the textbook principles (DRY, KISS, YAGNI, and friends, decorated with metrics nothing measured); four overlapping verification principles collapsed into one line about reporting honestly; a rule to `cd` to an absolute path before every command, which now fights the harness rather than helping it; a mandated first-response tool call; an instruction not to use native task tracking; the mermaid state machines; and the long lists of phrasings not to use.
 
+**The installer is gone too.** `AGENTS.md` and `CLAUDE.md` are now well-established enough across agents that generating them per-target solved a problem that no longer exists. A build step that concatenates two markdown files into a third is worse than just having the file. Memory scaffolding moved into the `memory-bank` skill, where the agent creates the structure itself — and does it better than the old `--init-memory` flag did, because it reads the repo first and writes real content instead of six placeholder stubs.
+
 Non-Anthropic frontier models have made comparable gains, so there is no legacy profile here. If you are driving an older or smaller model, `git log` has the fuller version.
 
-## Components
+## Installation
 
-### `core.md`
+Copy or symlink the file into your project root:
 
-The always-on rules. Communication and tone, honest reporting of results, when to ask rather than decide, a short list of code preferences, and a pointer at the memory bank.
+```bash
+cp /path/to/coding-agent-rules/AGENTS.md ./AGENTS.md
+```
 
-### `commands.md`
+Symlinking instead means you pick up changes as this repo evolves:
 
-Command and prompt aliases. Short tokens so you can steer without a lot of typing: `.c` to continue, `.v` to verify, `.ts` to update task state, `.ip` to plan interactively. This is the highest-value file in the repo, because it is pure personal vocabulary that no model can guess at.
+```bash
+ln -s /path/to/coding-agent-rules/AGENTS.md ./AGENTS.md
+```
+
+`CLAUDE.md` is a symlink to `AGENTS.md`, so either name works and the contents are identical. Use whichever your agent reads. If you want both, make the second a symlink to the first rather than keeping two copies in sync.
+
+For the skills, copy them into your project (or into `~/.claude/skills/` to have them everywhere):
+
+```bash
+cp -r /path/to/coding-agent-rules/skills/* ./.claude/skills/
+```
+
+To supplement these rules with project-specific ones, append to your copy, or keep the symlink and add a second rules file alongside it.
+
+## Contents
+
+### `AGENTS.md`
+
+The rules themselves. Communication and tone, honest reporting of results, when to ask rather than decide, a short list of code preferences, a pointer at the memory bank, and the command aliases.
+
+The aliases are short tokens so you can steer without a lot of typing: `.c` to continue, `.v` to verify, `.ts` to update task state, `.ip` to plan interactively. This is the highest-value part of the repo, because it is pure personal vocabulary that no model can guess at.
 
 ### `skills/`
 
-The two blocks that are large but only situationally needed, kept out of the always-on context and loaded on demand:
+The two blocks that are large but only situationally needed, kept out of the always-on rules and loaded on demand:
 
-- `memory-bank` — the full `_memory/` schema. Loads when reading project memory or writing to it.
-- `interactive-planning` — the one-question-at-a-time elicitation prompt behind `.ip`.
+- **`memory-bank`** — the `_memory/` schema, how to set one up for a project, and how to keep it current. Bundles the `currentTaskState.md` template.
+- **`interactive-planning`** — the one-question-at-a-time elicitation prompt behind `.ip`.
 
-### Structured memory
+## Structured memory
 
 Credit where due: the memory bank is an adaptation of the [Cline Memory Bank](https://docs.cline.bot/improving-your-prompting-skills/cline-memory-bank).
 
@@ -45,54 +69,17 @@ Its purpose is ongoing documentation of the project's purpose, scope, architectu
 3. The status updates you'd give your PM and stakeholders.
 4. Your working notes as you [yak](https://projects.csail.mit.edu/gsb/old-archive/gsb-archive/gsb2000-02-11.html)-[shave](https://youtu.be/AbSehcT19u0) your way through a feature or bug.
 
-Memory lives in `_memory/`, in a structure documented by the `memory-bank` skill. A structured memory makes the agent understand the project more reliably than an unstructured pile of atomic memories or a single freetext file.
+Memory lives in `_memory/`, in the structure documented by the `memory-bank` skill. A structured memory makes the agent understand the project more reliably than an unstructured pile of atomic memories or a single freetext file.
+
+To set one up, ask the agent to create a memory bank for the project. On an existing codebase it will read the repo and write the basic truths from what's actually there, asking about the parts the code can't tell it.
 
 Now that agents ship their own automatic memory, this is less load-bearing than it was. It still earns its place for handing work across sessions and for context you want to curate deliberately rather than accumulate incidentally.
 
-## Installation
-
-`install-rules.sh` wraps `rules_manager.py`, which does the actual work. Run it from your project root, pointing at your clone of this repo:
-
-```bash
-bash /path/to/coding-agent-rules/install-rules.sh
-```
-
-That writes `CLAUDE.md` into the current directory. To target a different directory, pass it as an argument:
-
-```bash
-bash /path/to/coding-agent-rules/install-rules.sh /path/to/your/project
-```
-
-### Options
-
-- `--agent <name>` — output target. `claude` (default) writes `CLAUDE.md`; `agentsmd` writes `AGENTS.md`. The contents are identical.
-- `--output <filename>` — write to a custom filename instead. Cannot be combined with `--agent`.
-- `--install-skills` — copy `skills/*` into the target project's `.claude/skills/`.
-- `--init-memory` — scaffold an empty `_memory/` structure in the target directory.
-- `--exclude <file.md>` — leave a rule file out of the generated output. Repeatable.
-- `--list-files` — show which rule files, skills, and templates would be used, then exit.
-
-A typical first-time setup for a project:
-
-```bash
-bash /path/to/coding-agent-rules/install-rules.sh --install-skills /path/to/your/project
-bash /path/to/coding-agent-rules/install-rules.sh --init-memory /path/to/your/project
-bash /path/to/coding-agent-rules/install-rules.sh /path/to/your/project
-```
-
-Only the files named in `RULE_FILES` in `rules_manager.py` ship. Adding a markdown file to the repo root does not put it in every project's `CLAUDE.md`; add it to that list deliberately.
-
 ## Workflow
-
-### Interactive planning
-
-alias: `.ip`
-
-Plan a project or feature with the agent before building it. It asks a series of clarifying questions, one at a time, until the requirements and constraints are pinned down and you have a spec you could hand to a developer. Use the strongest thinking model you can afford for this stage.
 
 ### Starting a project
 
-Run `.ip <the goal of the project>`, then `.um` to write the result into memory. On an existing codebase, let the agent read widely first.
+Run `.ip <the goal of the project>` to plan it interactively, then ask for a memory bank to be set up from the result. On an existing codebase, let the agent read widely first.
 
 ### Day to day
 
