@@ -7,71 +7,87 @@ import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Output targets. Both concatenate the rule files into a single document; they
+# differ only in filename.
 AGENT_CONFIGS = {
-    "cursor": {
-        "concatenate_rules": False,
-        "agent_subdir": ".cursor/rules",
-        "individual_file_prefix": "very-important-",
-        "individual_file_suffix": ".mdc",
-        "output_filename": None,
-    },
-    "windsurf": {
-        "concatenate_rules": True,
-        "agent_subdir": "",
-        "output_filename": ".windsurfrules",
-        "individual_file_prefix": None,
-        "individual_file_suffix": None,
-    },
-    "claude": {
-        "concatenate_rules": True,
-        "agent_subdir": "",
-        "output_filename": "CLAUDE.md",
-        "individual_file_prefix": None,
-        "individual_file_suffix": None,
-    },
-    "agentsmd": {
-        "concatenate_rules": True,
-        "agent_subdir": "",
-        "output_filename": "AGENTS.md",
-        "individual_file_prefix": None,
-        "individual_file_suffix": None,
-    },
+    "claude": {"output_filename": "CLAUDE.md"},
+    "agentsmd": {"output_filename": "AGENTS.md"},
 }
 
-BLACKLISTED_MD_FILES = [
-    "repomix-output.md",
+# The rule files that ship, in the order they are concatenated. This is an
+# explicit list rather than a glob of the repo root so that a scratch file left
+# lying around cannot silently end up in every project's CLAUDE.md.
+RULE_FILES = [
+    "core.md",
+    "commands.md",
 ]
 
-# The content for currentTaskState.md, read from the template
-CURRENT_TASK_STATE_CONTENT = ""
+SKILLS_DIRNAME = "skills"
 
+# The content for currentTaskState.md, read from the template
 with open(os.path.join(SCRIPT_DIR, "_templates/currentTaskState.md"), "r", encoding="utf-8") as f:
     CURRENT_TASK_STATE_CONTENT = f.read()
 
-# Placeholder content for other files
+# Placeholder content for the basicTruths files created by --init-memory.
 PLACEHOLDER_CONTENT = {
-    "productContext.md": "# Product Context\\n\\n- Why this project exists\\n- Problems it solves\\n- How it should work\\n- User experience goals",
-    "projectScope.md": "# Project Scope\\n\\n- Foundation document that shapes all other files\\n- Created at project start if it doesn't exist\\n- Defines core requirements and goals\\n- Source of truth for project scope",
-    "systemArchitecture.md": "# System Architecture\\n\\n- High-level system architecture\\n- Key technical decisions\\n- Design patterns in use\\n- Component relationships",
-    "theBacklog.md": "# The Backlog\\n\\n- Prioritized list of features and tasks\\n- Recent changes",
-    "theTechContext.md": "# The Tech Context\\n\\n- Technologies used\\n- Technical constraints\\n- Dependencies\\n- Development setup\\n- Build and deployment instructions\\n- Standards and conventions",
+    "productContext.md": """# Product Context
+
+- Why this project exists
+- Problems it solves
+- How it should work
+- User experience goals
+""",
+    "projectScope.md": """# Project Scope
+
+- Foundation document that shapes all other files
+- Created at project start if it doesn't exist
+- Defines core requirements and goals
+- Source of truth for project scope
+""",
+    "repoStructure.md": """# Repo Structure
+
+- Top-level directory layout
+- Where each kind of code lives
+- Anything about the layout that would surprise someone new
+""",
+    "systemArchitecture.md": """# System Architecture
+
+- High-level system architecture
+- Key technical decisions
+- Design patterns in use
+- Component relationships
+""",
+    "theBacklog.md": """# The Backlog
+
+- Prioritized list of features and tasks
+- Recent changes
+""",
+    "theTechContext.md": """# The Tech Context
+
+- Technologies used
+- Technical constraints
+- Dependencies
+- Development setup
+- Build and deployment instructions
+- Standards and conventions
+""",
 }
+
 
 def create_memory_structure(target_dir):
     """Creates the _memory directory structure and populates it with initial files."""
     base_dir = os.path.join(target_dir, "_memory")
     if os.path.exists(base_dir):
         print(f"Directory '{base_dir}' already exists. Aborting.", file=sys.stderr)
-        return
+        sys.exit(1)
 
     print(f"Creating directory: {base_dir}")
     os.makedirs(base_dir)
 
-    # Directories to create
     dirs_to_create = {
         "basicTruths": list(PLACEHOLDER_CONTENT.keys()),
         "currentState": ["currentEpic.md", "currentTaskState.md"],
-        "knowledgeBase": []
+        "knowledgeBase": [],
     }
 
     knowledge_base_subdirs = ["designs", "domainKnowledge", "reference", "requirements"]
@@ -84,11 +100,11 @@ def create_memory_structure(target_dir):
         for filename in files:
             file_path = os.path.join(dir_path, filename)
             print(f"Creating file: {file_path}")
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 if filename == "currentTaskState.md":
                     f.write(CURRENT_TASK_STATE_CONTENT)
                 else:
-                    f.write(PLACEHOLDER_CONTENT.get(filename, f"# {filename}\\n"))
+                    f.write(PLACEHOLDER_CONTENT.get(filename, f"# {filename}\n"))
 
     for subdir in knowledge_base_subdirs:
         subdir_path = os.path.join(base_dir, "knowledgeBase", subdir)
@@ -98,7 +114,7 @@ def create_memory_structure(target_dir):
         with open(os.path.join(subdir_path, ".gitkeep"), "w") as f:
             pass
 
-    # Process templates - copy them into _memory/_templates
+    # Copy templates into _memory/_templates
     print("\nProcessing templates...")
     source_templates_dir = os.path.join(SCRIPT_DIR, "_templates")
     memory_templates_dir = os.path.join(base_dir, "_templates")
@@ -109,7 +125,7 @@ def create_memory_structure(target_dir):
         for item in sorted(os.listdir(source_templates_dir)):
             if item.startswith((".", "@")):  # Skip dotfiles and @-files
                 continue
-            if item.endswith(".md") and item not in BLACKLISTED_MD_FILES:
+            if item.endswith(".md"):
                 templates_processed_count += 1
                 source_template_path = os.path.join(source_templates_dir, item)
                 dest_template_path = os.path.join(memory_templates_dir, item)
@@ -126,181 +142,185 @@ def create_memory_structure(target_dir):
 
     print("\nMemory structure created successfully.")
 
+
+def install_skills(target_dir):
+    """Copies each skill directory into the target project's .claude/skills/."""
+    source_skills_dir = os.path.join(SCRIPT_DIR, SKILLS_DIRNAME)
+    if not os.path.isdir(source_skills_dir):
+        print(f"Skills source directory not found: {source_skills_dir}", file=sys.stderr)
+        return 0
+
+    dest_skills_dir = os.path.join(target_dir, ".claude", "skills")
+    os.makedirs(dest_skills_dir, exist_ok=True)
+
+    installed = 0
+    for item in sorted(os.listdir(source_skills_dir)):
+        if item.startswith((".", "@")):
+            continue
+        source_skill_path = os.path.join(source_skills_dir, item)
+        if not os.path.isdir(source_skill_path):
+            continue
+        dest_skill_path = os.path.join(dest_skills_dir, item)
+        print(f"Installing skill {item} -> {dest_skill_path}")
+        if os.path.exists(dest_skill_path):
+            shutil.rmtree(dest_skill_path)
+        shutil.copytree(source_skill_path, dest_skill_path)
+        installed += 1
+
+    if installed == 0:
+        print("No skills found to install.")
+    else:
+        print(f"Installed {installed} skill(s).")
+    return installed
+
+
+def resolve_rule_files(excluded):
+    """Returns the absolute paths of the rule files to ship, in order."""
+    resolved = []
+    for name in RULE_FILES:
+        if name in excluded:
+            continue
+        path = os.path.join(SCRIPT_DIR, name)
+        if not os.path.isfile(path):
+            print(f"Error: rule file listed in RULE_FILES not found: {path}", file=sys.stderr)
+            sys.exit(1)
+        resolved.append(path)
+    return resolved
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Manages rule files for different agents.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description="Generates a CLAUDE.md / AGENTS.md ruleset for a target project.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
-        "--copy",
-        action="store_true",
-        help="Copy files instead of symlinking. Concatenated rule files are always copied."
-    )
-    
     parser.add_argument(
         "--init-memory",
         action="store_true",
-        help="Initialize an empty _memory directory structure in the target directory."
+        help="Initialize an empty _memory directory structure in the target directory.",
     )
-    
-    # Create mutually exclusive group for --agent and --output
+    parser.add_argument(
+        "--install-skills",
+        action="store_true",
+        help="Install the skills/ directories into the target project's .claude/skills/.",
+    )
+    parser.add_argument(
+        "--exclude",
+        action="append",
+        default=[],
+        help="Exclude a rule file from the generated output. Repeatable. Example: --exclude commands.md",
+    )
+    parser.add_argument(
+        "--list-files",
+        action="store_true",
+        help="List the rule files, skills, and templates that would be used, then exit.",
+    )
+
+    # --agent and --output are mutually exclusive
     agent_group = parser.add_mutually_exclusive_group(required=False)
     agent_group.add_argument(
         "--agent",
-        default="cursor",
+        default="claude",
         choices=AGENT_CONFIGS.keys(),
-        help="Specify the agent type."
+        help="Specify the output target.",
     )
     agent_group.add_argument(
         "--output",
-        help="Specify a custom output file for concatenated rules. Cannot be used with --agent."
+        help="Write the concatenated rules to a custom filename. Cannot be used with --agent.",
     )
-    
+
     parser.add_argument(
         "base_target_directory",
         nargs="?",
         default=os.getcwd(),
-        help="The base directory where rules/templates will be placed. Defaults to current working directory."
+        help="The directory to write into. Defaults to the current working directory.",
     )
 
     args = parser.parse_args()
 
-    if args.init_memory:
-        target_dir = os.path.abspath(args.base_target_directory)
-        print(f"Initializing memory structure in: {target_dir}")
-        create_memory_structure(target_dir)
-        
+    if args.list_files:
+        print("Rule files (in output order):")
+        for name in RULE_FILES:
+            missing = "" if os.path.isfile(os.path.join(SCRIPT_DIR, name)) else "  (MISSING)"
+            print(f"  - {name}{missing}")
 
-    source_dir_abs = SCRIPT_DIR
-    if not os.path.isdir(source_dir_abs):
-        print(f"Error: Source directory not found: {source_dir_abs}", file=sys.stderr)
-        sys.exit(1)
+        print("\nSkills:")
+        source_skills_dir = os.path.join(SCRIPT_DIR, SKILLS_DIRNAME)
+        skills = []
+        if os.path.isdir(source_skills_dir):
+            skills = [
+                item
+                for item in sorted(os.listdir(source_skills_dir))
+                if not item.startswith((".", "@"))
+                and os.path.isdir(os.path.join(source_skills_dir, item))
+            ]
+        for item in skills:
+            print(f"  - {item}")
+        if not skills:
+            print("  (none found)")
 
-    # Determine if we're using custom output or agent-based configuration
-    if args.output:
-        # Custom output mode - always concatenate
-        concatenate_rules = True
-        agent_subdir = ""
-        output_filename = args.output
-        agent_type = "custom"
-        individual_file_prefix = None
-        individual_file_suffix = None
-    else:
-        # Agent-based mode
-        agent_config = AGENT_CONFIGS[args.agent]
-        concatenate_rules = agent_config["concatenate_rules"]
-        agent_subdir = agent_config["agent_subdir"]
-        output_filename = agent_config["output_filename"]
-        agent_type = args.agent
-        individual_file_prefix = agent_config["individual_file_prefix"]
-        individual_file_suffix = agent_config["individual_file_suffix"]
-    
+        print("\nTemplates:")
+        source_templates_dir = os.path.join(SCRIPT_DIR, "_templates")
+        template_files = []
+        if os.path.isdir(source_templates_dir):
+            template_files = [
+                item
+                for item in sorted(os.listdir(source_templates_dir))
+                if item.endswith(".md") and not item.startswith((".", "@"))
+            ]
+        for item in template_files:
+            print(f"  - {item}")
+        if not template_files:
+            print("  (none found)")
+
+        print(
+            f"\nTotal: {len(RULE_FILES)} rule file(s), "
+            f"{len(skills)} skill(s), {len(template_files)} template file(s)"
+        )
+        sys.exit(0)
+
+    excluded_files = set(args.exclude)
+    if excluded_files:
+        print(f"User-specified exclusions: {', '.join(sorted(excluded_files))}")
+
     base_target_dir_abs = os.path.abspath(args.base_target_directory)
 
-    effective_target_dir = base_target_dir_abs
-    if agent_subdir:
-        effective_target_dir = os.path.join(base_target_dir_abs, agent_subdir)
+    if args.init_memory:
+        print(f"Initializing memory structure in: {base_target_dir_abs}")
+        create_memory_structure(base_target_dir_abs)
+        sys.exit(0)
 
-    effective_templates_dir = os.path.join(effective_target_dir, "_templates")
+    if args.install_skills:
+        print(f"Installing skills into: {base_target_dir_abs}")
+        install_skills(base_target_dir_abs)
+        sys.exit(0)
 
-    print(f"Selected agent type: {agent_type}")
-    print(f"Copy mode: {args.copy}")
-    print(f"Source directory: {source_dir_abs}")
-    print(f"Base target directory: {base_target_dir_abs}")
-    print(f"Effective rules target directory: {effective_target_dir}")
-    print(f"Effective templates target directory: {effective_templates_dir}")
+    output_filename = args.output if args.output else AGENT_CONFIGS[args.agent]["output_filename"]
+    target_label = "custom" if args.output else args.agent
 
-    os.makedirs(effective_target_dir, exist_ok=True)
-    os.makedirs(effective_templates_dir, exist_ok=True)
+    print(f"Target: {target_label}")
+    print(f"Source directory: {SCRIPT_DIR}")
+    print(f"Target directory: {base_target_dir_abs}")
 
-    # Process Rules
-    print("\nProcessing rules...")
-    rules_processed_count = 0
-    if concatenate_rules:
-        output_path = os.path.join(effective_target_dir, output_filename)
-        print(f"Concatenating rules into: {output_path}")
-        with open(output_path, "w", encoding="utf-8") as outfile:
-            first_rule_file = True
-            for item in sorted(os.listdir(source_dir_abs)): # Sort for consistent order
-                if item.startswith((".", "@")): # Skip dotfiles and @-files
-                    continue
-                if item.endswith(".md") and item.lower() != "readme.md" and item not in BLACKLISTED_MD_FILES:
-                    rules_processed_count += 1
-                    rule_file_path = os.path.join(source_dir_abs, item)
-                    if not first_rule_file:
-                        outfile.write("\n\n") # Separator between files
-                    
-                    outfile.write(f"# {item}\n\n") # Add filename as H1 header
-                    
-                    with open(rule_file_path, "r", encoding="utf-8") as infile:
-                        outfile.write(infile.read())
-                    first_rule_file = False
-        if rules_processed_count > 0:
-            print(f"Successfully created {output_path} with {rules_processed_count} rule(s).")
-        else:
-            print("No rule files found to concatenate (excluding README.md, dotfiles, @-files).")
-            # Remove the empty file if it was created
-            if os.path.exists(output_path) and os.path.getsize(output_path) == 0:
-                os.remove(output_path)
+    os.makedirs(base_target_dir_abs, exist_ok=True)
 
-    else: # Individual file processing
-        for item in sorted(os.listdir(source_dir_abs)):
-            if item.startswith((".", "@")): # Skip dotfiles and @-files
-                continue
-            if item.endswith(".md") and item.lower() != "readme.md":
-                rules_processed_count +=1
-                source_file_path = os.path.join(source_dir_abs, item)
-                base_filename, _ = os.path.splitext(item)
-                dest_filename = f"{individual_file_prefix}{base_filename}{individual_file_suffix}"
-                dest_file_path = os.path.join(effective_target_dir, dest_filename)
+    rule_paths = resolve_rule_files(excluded_files)
+    if not rule_paths:
+        print("No rule files left to write after exclusions.", file=sys.stderr)
+        sys.exit(1)
 
-                # Remove existing destination if it's a symlink or file to avoid errors/issues
-                if os.path.islink(dest_file_path) or os.path.exists(dest_file_path):
-                    os.remove(dest_file_path)
+    output_path = os.path.join(base_target_dir_abs, output_filename)
+    print(f"\nWriting rules into: {output_path}")
 
-                if args.copy:
-                    print(f"Copying rule {source_file_path} to {dest_file_path}")
-                    shutil.copy2(source_file_path, dest_file_path)
-                else:
-                    print(f"Symlinking rule {source_file_path} to {dest_file_path}")
-                    # For symlink, source path should be absolute for robustness
-                    os.symlink(os.path.abspath(source_file_path), dest_file_path)
-        if rules_processed_count == 0:
-            print("No rule files found to process (excluding README.md, dotfiles, @-files).")
-        else:
-            print(f"Processed {rules_processed_count} individual rule file(s).")
+    with open(output_path, "w", encoding="utf-8") as outfile:
+        for index, rule_path in enumerate(rule_paths):
+            if index > 0:
+                outfile.write("\n\n")
+            with open(rule_path, "r", encoding="utf-8") as infile:
+                outfile.write(infile.read().rstrip("\n") + "\n")
+            print(f"  + {os.path.basename(rule_path)}")
 
+    print(f"\nWrote {output_path} from {len(rule_paths)} rule file(s).")
 
-    # Process _templates
-    print("\nProcessing templates...")
-    source_templates_dir = os.path.join(source_dir_abs, "_templates")
-    templates_processed_count = 0
-    if os.path.isdir(source_templates_dir):
-        for item in sorted(os.listdir(source_templates_dir)):
-            if item.startswith((".", "@")): # Skip dotfiles and @-files
-                continue
-            if item.endswith(".md") and item not in BLACKLISTED_MD_FILES:
-                templates_processed_count +=1
-                source_template_path = os.path.join(source_templates_dir, item)
-                dest_template_path = os.path.join(effective_templates_dir, item)
-
-                if os.path.islink(dest_template_path) or os.path.exists(dest_template_path):
-                    os.remove(dest_template_path)
-
-                if args.copy:
-                    print(f"Copying template {source_template_path} to {dest_template_path}")
-                    shutil.copy2(source_template_path, dest_template_path)
-                else:
-                    print(f"Symlinking template {source_template_path} to {dest_template_path}")
-                    os.symlink(os.path.abspath(source_template_path), dest_template_path)
-        if templates_processed_count == 0:
-            print("No template files found in _templates directory (excluding dotfiles, @-files).")
-        else:
-            print(f"Processed {templates_processed_count} template file(s).")
-    else:
-        print(f"Templates source directory not found: {source_templates_dir}")
-
-    print("\nScript finished.")
 
 if __name__ == "__main__":
-    main() 
+    main()
