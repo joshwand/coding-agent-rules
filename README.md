@@ -49,7 +49,11 @@ To supplement these rules with project-specific ones, append to your copy, or ke
 
 The rules themselves. Communication and tone, honest reporting of results, when to ask rather than decide, a short list of code preferences, a pointer at the memory bank, and the command aliases.
 
-The aliases are short tokens so you can steer without a lot of typing: `.c` to continue, `.v` to verify, `.ts` to update task state, `.ip` to plan interactively. This is the highest-value part of the repo, because it is pure personal vocabulary that no model can guess at.
+Every agreement is **named**, so you can invoke one by name when it's been violated or needs reinforcing — "NoSyntheticData", "you're doing NoLazyPatternMatching again", `.rrr AskUserForStrategyChoices`. The name is shorthand for the whole paragraph. Twelve of the seventeen names carry over from the old `principles.md`, so existing habits still work; the rest cover rules that never had a name.
+
+The aliases are short tokens so you can steer without a lot of typing: `.c` to continue, `.v` to verify, `.ts` to update task state, `.ip` to plan interactively. Four of them (`.pi`, `.nd`, `.nyr`, and their variants) are just shorthand for a named agreement, so the alias table doubles as an index.
+
+The names and aliases together are the highest-value part of the repo, because they are pure personal vocabulary that no model can guess at.
 
 ### `skills/`
 
