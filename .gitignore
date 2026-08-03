@@ -7,6 +7,3 @@ repomix-output.md
 repomix-output.xml
 .cursorindexingignore
 .venv
-# real handoffs to grade against the rubric, kept out of the public repo
-evals/local/
-__pycache__/
