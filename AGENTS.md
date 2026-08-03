@@ -60,8 +60,6 @@ Shorthand I use in prompts. When a message is one of these tokens, expand it as 
 .v                  verify that the work you have done is correct and works as expected
 .pi                 prove it: show the passing tests, the screenshot, the actual output
 .nd, .ndy, .ynd     not done until the functionality completely works; no partial victories
-.cn                 give me a standalone prompt for the next agent to continue this process.
-                    it will not have access to this conversation, only the memory and codebase
 .rj                 repeat ("reinject") my goals, plan, and instructions into the conversation
 .rrr <optional-arg> re-read the rules files (or <arg> if specified)
 .dr, .ds            don't start new instances of running processes; anything already running
@@ -77,6 +75,9 @@ These expand into a prompt rather than a one-line instruction. They take space-d
 
 ```
 .ip <idea>          Interactive Planning — use the `interactive-planning` skill
+.cn                 write a standalone briefing for the next agent to continue this work.
+                    it will not have access to this conversation, only the memory and
+                    codebase — use the `handoff` skill
 .m <arg>            load memory, then do <arg>:
                     npx repomix --quiet --include _memory/ --ignore _memory/knowledgeBase --style markdown --stdout
 .mc                 .m, then .c — for moving a too-long chat into a fresh one
