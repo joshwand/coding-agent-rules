@@ -63,6 +63,12 @@ The blocks that are large but only situationally needed, kept out of the always-
 - **`interactive-planning`** — the one-question-at-a-time elicitation prompt behind `.ip`.
 - **`handoff`** — the briefing behind `.cn`, for moving work into a fresh chat. Its output is written to the agent picking the work up rather than as a recap for you, so the sections are operative: what to read and in what order, the state inherited, the scope and where to stop, the standing constraints, and the definition of done.
 
+### `evals/`
+
+A small suite for the `handoff` skill, because prompts regress quietly — a skill can be edited into something that still produces a plausible document while dropping the parts that made it useful.
+
+`lint_handoff.py` is stdlib-only and decides the mechanical rules: sections present and in order, plain prose held, something paste-able actually named. `rubric.md` holds 21 substance assertions for a model to grade, over three synthetic sessions in `cases/`. `calibration/` is a known-good and known-bad pair used to check the grader before trusting it on anything real — a grader that can't separate those two is rewarding fluent prose, which is the failure being hunted.
+
 ## Structured memory
 
 Credit where due: the memory bank is an adaptation of the [Cline Memory Bank](https://docs.cline.bot/improving-your-prompting-skills/cline-memory-bank).
