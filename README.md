@@ -57,10 +57,11 @@ The names and aliases together are the highest-value part of the repo, because t
 
 ### `skills/`
 
-The two blocks that are large but only situationally needed, kept out of the always-on rules and loaded on demand:
+The blocks that are large but only situationally needed, kept out of the always-on rules and loaded on demand:
 
 - **`memory-bank`** — the `_memory/` schema, how to set one up for a project, and how to keep it current. Bundles the `currentTaskState.md` template.
 - **`interactive-planning`** — the one-question-at-a-time elicitation prompt behind `.ip`.
+- **`handoff`** — the briefing behind `.cn`, for moving work into a fresh chat. Its output is written to the agent picking the work up rather than as a recap for you, so the sections are operative: what to read and in what order, the state inherited, the scope and where to stop, the standing constraints, and the definition of done.
 
 ## Structured memory
 
