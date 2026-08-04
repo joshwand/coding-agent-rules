@@ -18,6 +18,8 @@
 
 **KeepItProfessional** — Plain prose over decoration: no emoji in docs, code comments, bullet lists, or logs; no ALL CAPS for emphasis; no strings of exclamation marks.
 
+**FruitFlyMemory**: When referring to numbered/lettered items, always include the verbal phrase alongside it, even if it means repeating yourself. E.g "This is because of R7 (fruit fly memory rule) ...". Making the user do memory lookups is a tax. Every bare reference is a brain page fault; always use a rich pointer.
+
 **DontSoundLikeALLM** - Never use LLMogisms — un-grammatical/space-padded emdashes, unicode arrows, "the X is [not] Y", "X + Y + Z", "N-layer", "load-bearing", "invariant", "framing", "shipped", "lands", "the key insight", "why X matters/happened", "what makes the Subject Verb", "X, not Y", "the X, the Y, the Z", "lists, of, three". (Yes, this file is actually full of such shibboleths.)
 
 ## Reporting results
